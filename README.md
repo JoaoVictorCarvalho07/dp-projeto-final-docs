@@ -1,8 +1,9 @@
-# Projeto Final de Design Patterns — Documentos/Exportação (Tema A)
+# Projeto Final de Design Patterns — Documentos/Exportação
 
 Biblioteca Java 21 importável para montar documentos (seções, parágrafos, tabelas) e exportá-los
-para vários formatos (HTML, Markdown e um "PDF" em texto simplificado). Novos formatos, temas e
-efeitos entram **sem alterar a biblioteca** (Open/Closed).
+para vários formatos (HTML, Markdown, "PDF" em texto), com temas e efeitos de saída plugáveis.
+Este README explica **as decisões** do projeto. A explicação didática de cada pattern e do código
+está em [docs/patterns.md](docs/patterns.md).
 
 ## Integrantes
 
@@ -15,146 +16,119 @@ efeitos entram **sem alterar a biblioteca** (Open/Closed).
 
 **Vídeo:** https://www.youtube.com/watch?v=COLOCAR_LINK_AQUI
 
-## Estrutura
-
-```
-lib/      -> a biblioteca (br.pucpr.docs), com testes JUnit 5
-  model/      Node, Section, Paragraph, Table, Document   (Composite, Prototype)
-  builder/    DocumentBuilder                              (Builder)
-  visitor/    DocumentVisitor                              (Visitor)
-  export/     AbstractExporter, Html/Markdown/PdfText      (Template Method + Visitor)
-  theme/      ThemeFactory, Classic/Dark                   (Abstract Factory)
-  decorator/  Watermark/PageNumber                         (Decorator)
-  iterator/   DepthFirstIterator                           (Iterator)
-  prototype/  TemplateRegistry                             (Prototype)
-example/  -> cliente que usa a lib (Main + JsonExporter criado fora da lib)
-```
-
-## Como rodar
+## Como rodar e importar
 
 ```bash
-./gradlew build            # compila e roda os testes
-./gradlew :example:run     # roda a demonstração
+./gradlew build                    # compila e roda os testes
+./gradlew :example:run             # demonstração completa
+./gradlew :lib:publishToMavenLocal # publica br.pucpr:docs-patterns:0.1.0
 ```
 
-## Como importar em outro projeto
+Em outro projeto: `repositories { mavenLocal() }` e
+`implementation("br.pucpr:docs-patterns:0.1.0")`. O módulo `example/` é exatamente esse cliente
+externo.
 
-Opção 1 — Maven local:
+## Por que o tema Documentos/Exportação
 
-```bash
-./gradlew :lib:publishToMavenLocal
-```
+O critério principal do trabalho é uma biblioteca **extensível por quem a usa** (Open/Closed).
+Documentos têm, naturalmente, os quatro eixos de variação que um cliente quer estender sem tocar
+na lib:
 
-```kotlin
-repositories { mavenLocal(); mavenCentral() }
-dependencies { implementation("br.pucpr:docs-patterns:0.1.0") }
-```
+1. **O que** compõe o documento (estrutura em árvore).
+2. **Para onde** ele é exportado (formatos).
+3. **Com que aparência** (temas).
+4. **Com que efeitos extras** na saída (marca d'água, numeração).
 
-Opção 2 — jar: `./gradlew :lib:jar` gera `lib/build/libs/lib-0.1.0.jar`, e no outro projeto:
-`implementation(files("libs/lib-0.1.0.jar"))`.
+Cada pattern foi escolhido para cobrir um desses eixos, ou o jeito de criar e percorrer a árvore.
+Assim, nenhum pattern aparece só para "cumprir tabela", e os 8 conversam entre si num fluxo só:
+montar → percorrer → exportar → decorar.
 
-Uso:
+## Decisões por pattern
 
-```java
-Document doc = DocumentBuilder.create("Relatório")
-    .author("Grupo")
-    .section("Intro").paragraph("Olá").endSection()
-    .section("Notas").table("Aluno", "Nota").row("Ana", "10").endSection()
-    .build();
+### Estrutura do documento: Composite + Builder (Aluno 1)
+- **Composite:** um documento é uma árvore (seção dentro de seção). Tratar seção e parágrafo
+  pela mesma interface `Node` deixa o resto da lib ignorar a profundidade. A alternativa, uma lista
+  plana com "nível", foi descartada, porque empurra a lógica de hierarquia para cada exportador.
+- **Builder:** montar a árvore na mão exige criar e ligar nós e lembrar qual seção está aberta. O
+  Builder fluente esconde isso e valida o resultado no `build()`. Construtores com muitos
+  parâmetros e setters soltos foram descartados, porque permitem documentos inválidos.
 
-String html = new HtmlExporter(new DarkThemeFactory()).export(doc);
-String pdf  = new PageNumberDecorator(new WatermarkDecorator(new PdfTextExporter(), "RASCUNHO"), 40)
-                  .export(doc);
-```
+### Exportação: Visitor + Template Method (Aluno 2)
+- **Visitor vs Strategy+Registry:** chegamos a considerar uma `ExportStrategy` registrada por
+  nome. Ela resolve "trocar o formato", mas cada estratégia acabaria com `instanceof` para saber
+  se o nó é seção, parágrafo ou tabela. O Visitor dá o despacho por tipo de nó de graça, e um
+  formato novo é só uma classe nova. O `JsonExporter` do `example/` foi escrito **fora da lib**
+  para provar isso. O custo conhecido é que um tipo de nó novo obriga a mudar todos os visitantes,
+  e aceitamos esse custo porque, no domínio, os tipos de nó mudam bem menos que os formatos.
+- **Template Method:** todo formato segue cabeçalho → corpo → rodapé. Deixar o fluxo `final` na
+  classe base evita que cada exportador reimplemente (e erre) a ordem, e o rodapé é um hook
+  opcional. A alternativa por composição (passar os passos como lambdas) foi descartada por ser
+  menos legível para o grupo estudar.
+- **Observer (descartado):** pensamos em notificar progresso da exportação, mas não havia um
+  problema real do domínio que ele resolvesse, então só adicionaria complexidade.
 
-## Os 8 patterns
+### Saída e percurso: Decorator + Iterator (Aluno 3)
+- **Decorator vs herança:** com herança, marca d'água e numeração em 3 formatos virariam
+  `HtmlComMarcaDagua`, `PdfNumerado`, `PdfNumeradoComMarcaDagua`... (explosão de subclasses). O
+  Decorator embrulha **qualquer** exportador e pode ser empilhado em tempo de execução.
+- **Iterator explícito vs recursão:** a recursão já existe dentro dos exportadores, mas obriga
+  cada cliente que só quer "passar por todos os nós" (contar tabelas, buscar texto) a reescrevê-la
+  e conhecer `Section`. Com `Document implements Iterable<Node>`, o cliente usa `for-each` sem
+  conhecer a estrutura, e outros percursos (em largura, por exemplo) seriam iteradores novos.
 
-### 1. Builder — `builder/DocumentBuilder`
-- **Problema:** montar uma árvore de nós na mão é verboso e fácil de errar.
-- **Solução:** API fluente (`section().paragraph().endSection()`), que controla as seções abertas
-  numa pilha e valida no `build()`.
-- **Open/Closed:** o cliente monta qualquer documento sem conhecer as classes internas.
+### Aparência e reaproveitamento: Abstract Factory + Prototype (Aluno 4)
+- **Abstract Factory vs enum de tema:** um `enum Tema { CLASSIC, DARK }` com `switch` nos
+  exportadores obrigaria a mexer na lib a cada tema novo e espalharia o `switch` por todo lado. A
+  fábrica entrega uma **família coerente** de estilos (título, parágrafo e tabela combinando), e um
+  tema novo é só uma fábrica nova.
+- **Prototype vs Builder repetido:** para documentos-modelo (ex: "relatório padrão" que todo mês
+  muda só o título), repetir o Builder duplica código e cria risco de divergência. Clonar um
+  modelo registrado é mais barato e garante cópia profunda, então editar a cópia nunca altera o
+  original.
 
-### 2. Composite — `model/Node`, `Section`, `Paragraph`, `Table`
-- **Problema:** documentos têm seções dentro de seções, e queremos tratar tudo de forma uniforme.
-- **Solução:** `Node` é o componente; `Section` é o composto (tem filhos); `Paragraph` e `Table`
-  são folhas.
-- **Open/Closed:** quem percorre a árvore só depende de `Node`.
+## Como a escolha garante Open/Closed
 
-### 3. Visitor — `visitor/DocumentVisitor`
-- **Problema:** queremos várias operações (exportar em HTML, MD, JSON...) sem encher as classes do
-  modelo de métodos `toHtml()`, `toMd()`...
-- **Solução:** cada nó tem `accept(visitor)`; cada exportador é um visitante.
-- **Open/Closed:** `example/JsonExporter` é um formato novo criado **fora da lib**, sem mudar nada nela.
-
-### 4. Abstract Factory — `theme/ThemeFactory`, `ClassicThemeFactory`, `DarkThemeFactory`
-- **Problema:** estilos de título, parágrafo e tabela precisam combinar entre si.
-- **Solução:** cada fábrica cria a família inteira de estilos de um tema.
-- **Open/Closed:** um tema novo é só uma fábrica nova; os exportadores não mudam.
-
-### 5. Template Method — `export/AbstractExporter.export()`
-- **Problema:** todo exportador segue o mesmo fluxo: cabeçalho → corpo → rodapé.
-- **Solução:** `export()` é `final` e define a ordem; as subclasses implementam `writeHeader`,
-  `writeSectionTitle`, `visitParagraph`, `visitTable`, e opcionalmente o hook `writeFooter`.
-- **Open/Closed:** o fluxo é fechado pra mudança, e os passos são abertos pra extensão.
-
-### 6. Decorator — `decorator/ExporterDecorator`, `WatermarkDecorator`, `PageNumberDecorator`
-- **Problema:** marca d'água e numeração deveriam funcionar com qualquer formato, sem criar
-  `HtmlComMarcaDagua`, `PdfComNumeracao`...
-- **Solução:** o decorator implementa `DocumentExporter`, embrulha outro exportador e altera a
-  saída. Dá pra empilhar.
-- **Open/Closed:** efeito novo = decorator novo.
-
-### 7. Prototype — `Node.copy()`, `Document.copy()`, `prototype/TemplateRegistry`
-- **Problema:** reaproveitar documentos-modelo sem que a edição de um altere o outro.
-- **Solução:** cópia profunda; o registro guarda os modelos e sempre devolve um clone.
-- **Open/Closed:** templates novos são registrados em tempo de execução.
-
-### 8. Iterator — `iterator/DepthFirstIterator`, `Document implements Iterable<Node>`
-- **Problema:** percorrer todos os nós sem expor a estrutura nem escrever recursão toda vez.
-- **Solução:** iterador em profundidade (pré-ordem) com uma pilha; `for (Node n : doc)`.
-- **Open/Closed:** outros percursos (ex: em largura) seriam iteradores novos.
-
-## Diagrama de classes
+| Extensão que o cliente quer | Como faz | Mexe na lib? |
+| --- | --- | --- |
+| Novo formato (JSON, CSV...) | estende `AbstractExporter` | não |
+| Novo tema | implementa `ThemeFactory` | não |
+| Novo efeito de saída | estende `ExporterDecorator` | não |
+| Novo modelo de documento | `TemplateRegistry.register(...)` | não |
+| Novo percurso | implementa `Iterator<Node>` | não |
+| Novo **tipo de nó** | precisa de um método novo no Visitor | **sim** (trade-off aceito) |
 
 ```mermaid
-classDiagram
-    class Node { <<interface>> +accept(DocumentVisitor) +copy() Node }
-    class Section { +add(Node) +getChildren() }
-    class Paragraph
-    class Table
-    Node <|.. Section
-    Node <|.. Paragraph
-    Node <|.. Table
-    Section o-- Node : filhos
-    class Document { +iterator() +copy() }
-    Document --> Section : root
-    Document ..> DepthFirstIterator
-    class DocumentBuilder { +section() +paragraph() +table() +row() +build() }
-    DocumentBuilder ..> Document
-    class DocumentVisitor { <<interface>> +visitSection() +visitParagraph() +visitTable() }
-    class DocumentExporter { <<interface>> +export(Document) String }
-    class AbstractExporter { +export() final #writeHeader() #writeFooter() }
-    DocumentVisitor <|.. AbstractExporter
-    DocumentExporter <|.. AbstractExporter
-    AbstractExporter <|-- HtmlExporter
-    AbstractExporter <|-- MarkdownExporter
-    AbstractExporter <|-- PdfTextExporter
-    AbstractExporter <|-- JsonExporter : example (fora da lib)
-    AbstractExporter --> ThemeFactory
-    class ThemeFactory { <<interface>> +createTitleStyle() +createParagraphStyle() +createTableStyle() }
-    ThemeFactory <|.. ClassicThemeFactory
-    ThemeFactory <|.. DarkThemeFactory
-    class ExporterDecorator { <<abstract>> }
-    DocumentExporter <|.. ExporterDecorator
-    ExporterDecorator --> DocumentExporter : inner
-    ExporterDecorator <|-- WatermarkDecorator
-    ExporterDecorator <|-- PageNumberDecorator
-    class TemplateRegistry { +register() +create() Document }
-    TemplateRegistry ..> Document : clona
+flowchart LR
+    B[Builder] --> C[Composite: árvore de Node]
+    P[Prototype: TemplateRegistry] --> C
+    C --> I[Iterator: for-each nos nós]
+    C --> V[Visitor + Template Method: exportadores]
+    F[Abstract Factory: temas] --> V
+    V --> D[Decorator: marca d'água, numeração]
+    D --> S[(saída)]
 ```
 
+## Divisão por aluno
+
+Os patterns foram agrupados em pares que trabalham juntos, para que cada pessoa explique uma
+decisão completa no vídeo:
+
+- **Aluno 1 — Builder + Composite:** como o documento é estruturado e montado.
+- **Aluno 2 — Visitor + Template Method:** como a exportação funciona e se estende.
+- **Aluno 3 — Decorator + Iterator:** como a saída é enriquecida e a árvore é percorrida.
+- **Aluno 4 — Abstract Factory + Prototype:** temas e reaproveitamento de modelos.
+
+## Trade-offs e limitações conhecidas
+
+- Adicionar um tipo de nó exige mudar o `DocumentVisitor` (custo clássico do Visitor).
+- O "PDF" é texto simplificado, sem uma biblioteca de PDF de verdade.
+- O `PageNumberDecorator` pagina por número de linhas, não por altura real da página. A última
+  página nunca fica com uma linha só, porque essa linha é juntada à página anterior.
+- Os estilos dos temas são simples (CSS inline e formatação de título).
+
 ## Próximos passos (até a final em 12/11)
-- PDF de verdade (OpenPDF/PDFBox) dentro do `PdfTextExporter`.
+
+- PDF real com OpenPDF ou PDFBox dentro do `PdfTextExporter`.
 - Mais um tema e mais um decorator (ex: sumário).
-- Spotless/SpotBugs como no repo do professor.
+- Spotless e SpotBugs, como no repo do professor.
+- Gravar o vídeo e preencher os nomes completos e o link acima.

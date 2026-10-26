@@ -22,11 +22,17 @@ public final class PageNumberDecorator extends ExporterDecorator {
       count--;
     }
     int pages = Math.max(1, (count + linesPerPage - 1) / linesPerPage);
+    // evita "linha órfã": se a última página teria 1 linha só, junta com a anterior
+    boolean orphan = pages > 1 && count % linesPerPage == 1;
+    if (orphan) {
+      pages--;
+    }
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < count; i++) {
       sb.append(lines[i]).append("\n");
-      if ((i + 1) % linesPerPage == 0 || i == count - 1) {
-        int page = i / linesPerPage + 1;
+      int page = Math.min(i / linesPerPage + 1, pages);
+      boolean pageEnd = (i + 1) % linesPerPage == 0 && page < pages;
+      if (pageEnd || i == count - 1) {
         sb.append("--- Página ").append(page).append('/').append(pages).append(" ---\n");
       }
     }

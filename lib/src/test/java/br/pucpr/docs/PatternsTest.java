@@ -106,6 +106,13 @@ class PatternsTest {
   }
 
   @Test
+  void pageNumberNaoDeixaLinhaOrfa() {
+    br.pucpr.docs.export.DocumentExporter fake = d -> "a\nb\nc\n";
+    String out = new PageNumberDecorator(fake, 2).export(Fixtures.sample());
+    assertEquals("a\nb\nc\n--- Página 1/1 ---\n", out);
+  }
+
+  @Test
   void prototypeFazCopiaProfunda() {
     TemplateRegistry reg = new TemplateRegistry();
     reg.register("relatorio", Fixtures.sample());
