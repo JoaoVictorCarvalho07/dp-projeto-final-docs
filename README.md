@@ -10,9 +10,9 @@ está em [docs/patterns.md](docs/patterns.md).
 | Aluno | Nome completo | Patterns |
 | --- | --- | --- |
 | Aluno 1 |Joao Victor Carvalho de Freita | Builder + Composite |
-| Aluno 2 | Matheus heinzen | Visitor + Template Method |
-| Aluno 3 | NOME COMPLETO | Decorator + Prototype |
-| Aluno 4 | NOME COMPLETO | Abstract Factory + Iterator  |
+| Aluno 2 | Matheus Heinzen | Visitor + Template Method |
+| Aluno 3 | Bruna Carnelossi | Decorator + Prototype |
+| Aluno 4 | João Pedro de Souza | Abstract Factory + Iterator  |
 
 ## Por que o tema Documentos/Exportação
 
