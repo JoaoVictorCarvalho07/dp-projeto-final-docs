@@ -1,4 +1,4 @@
-# Projeto Final de Design Patterns — Documentos/Exportação
+# Projeto Final de Design Patterns - Documentos/Exportação
 
 Biblioteca Java 21 importável para montar documentos (seções, parágrafos, tabelas) e exportá-los
 para vários formatos (HTML, Markdown, "PDF" em texto), com temas e efeitos de saída plugáveis.
@@ -9,24 +9,10 @@ está em [docs/patterns.md](docs/patterns.md).
 
 | Aluno | Nome completo | Patterns |
 | --- | --- | --- |
-| Aluno 1 | NOME COMPLETO | Builder + Composite |
-| Aluno 2 | NOME COMPLETO | Visitor + Template Method |
-| Aluno 3 | NOME COMPLETO | Decorator + Iterator |
-| Aluno 4 | NOME COMPLETO | Abstract Factory + Prototype |
-
-**Vídeo:** https://www.youtube.com/watch?v=COLOCAR_LINK_AQUI
-
-## Como rodar e importar
-
-```bash
-./gradlew build                    # compila e roda os testes
-./gradlew :example:run             # demonstração completa
-./gradlew :lib:publishToMavenLocal # publica br.pucpr:docs-patterns:0.1.0
-```
-
-Em outro projeto: `repositories { mavenLocal() }` e
-`implementation("br.pucpr:docs-patterns:0.1.0")`. O módulo `example/` é exatamente esse cliente
-externo.
+| Aluno 1 |Joao Victor Carvalho de Freita | Builder + Composite |
+| Aluno 2 | Matheus heinzen | Visitor + Template Method |
+| Aluno 3 | NOME COMPLETO | Decorator + Prototype |
+| Aluno 4 | NOME COMPLETO | Abstract Factory + Iterator  |
 
 ## Por que o tema Documentos/Exportação
 
@@ -41,7 +27,7 @@ na lib:
 
 Cada pattern foi escolhido para cobrir um desses eixos, ou o jeito de criar e percorrer a árvore.
 Assim, nenhum pattern aparece só para "cumprir tabela", e os 8 conversam entre si num fluxo só:
-montar → percorrer → exportar → decorar.
+montar -> percorrer -> exportar -> decorar.
 
 ## Decisões por pattern
 
@@ -97,27 +83,6 @@ montar → percorrer → exportar → decorar.
 | Novo percurso | implementa `Iterator<Node>` | não |
 | Novo **tipo de nó** | precisa de um método novo no Visitor | **sim** (trade-off aceito) |
 
-```mermaid
-flowchart LR
-    B[Builder] --> C[Composite: árvore de Node]
-    P[Prototype: TemplateRegistry] --> C
-    C --> I[Iterator: for-each nos nós]
-    C --> V[Visitor + Template Method: exportadores]
-    F[Abstract Factory: temas] --> V
-    V --> D[Decorator: marca d'água, numeração]
-    D --> S[(saída)]
-```
-
-## Divisão por aluno
-
-Os patterns foram agrupados em pares que trabalham juntos, para que cada pessoa explique uma
-decisão completa no vídeo:
-
-- **Aluno 1 — Builder + Composite:** como o documento é estruturado e montado.
-- **Aluno 2 — Visitor + Template Method:** como a exportação funciona e se estende.
-- **Aluno 3 — Decorator + Iterator:** como a saída é enriquecida e a árvore é percorrida.
-- **Aluno 4 — Abstract Factory + Prototype:** temas e reaproveitamento de modelos.
-
 ## Trade-offs e limitações conhecidas
 
 - Adicionar um tipo de nó exige mudar o `DocumentVisitor` (custo clássico do Visitor).
@@ -131,4 +96,3 @@ decisão completa no vídeo:
 - PDF real com OpenPDF ou PDFBox dentro do `PdfTextExporter`.
 - Mais um tema e mais um decorator (ex: sumário).
 - Spotless e SpotBugs, como no repo do professor.
-- Gravar o vídeo e preencher os nomes completos e o link acima.
