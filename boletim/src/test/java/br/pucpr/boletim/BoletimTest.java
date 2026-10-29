@@ -55,4 +55,35 @@ class BoletimTest {
     String out = new ConfidencialDecorator(new MarkdownExporter()).export(doc());
     assertTrue(out.startsWith("*** CONFIDENCIAL"));
   }
+
+  @Test
+  void pdfDaLibComecaComPdf() {
+    byte[] pdf = new br.pucpr.docs.export.PdfExporter(new PucprThemeFactory()).exportBytes(doc());
+    assertEquals("%PDF", new String(pdf, 0, 4, java.nio.charset.StandardCharsets.ISO_8859_1));
+  }
+
+  @Test
+  void docxEhUmZipComDocumentXml() throws Exception {
+    byte[] docx = new DocxExporter(new PucprThemeFactory(), "CONFIDENCIAL").export(doc());
+    String xml = null;
+    try (var zip = new java.util.zip.ZipInputStream(new java.io.ByteArrayInputStream(docx))) {
+      java.util.zip.ZipEntry e;
+      while ((e = zip.getNextEntry()) != null) {
+        if (e.getName().equals("word/document.xml")) {
+          xml = new String(zip.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        }
+      }
+    }
+    assertNotNull(xml);
+    assertTrue(xml.contains("Design Patterns"));
+    assertTrue(xml.contains("CONFIDENCIAL"));
+  }
+
+  @Test
+  void servidorConheceTodosOsFormatos() {
+    for (String f : new String[] {"markdown", "html", "latex", "pdf", "docx"}) {
+      assertNotNull(ServidorWeb.exportar(f, "classico", doc()), f);
+    }
+    assertNull(ServidorWeb.exportar("xls", "classico", doc()));
+  }
 }
