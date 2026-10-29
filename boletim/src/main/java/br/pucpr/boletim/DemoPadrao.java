@@ -12,7 +12,7 @@ import java.nio.file.Path;
 /** Caso padrao: usa so o que ja vem na lib, sem criar nenhuma classe nova. */
 public class DemoPadrao {
   public static void main(String[] args) throws Exception {
-    Path csv = Path.of(args.length > 0 ? args[0] : "notas.csv");
+    Path csv = LeitorCsv.acharArquivo(args.length > 0 ? args[0] : "notas.csv");
     Document doc = GeradorBoletim.gerar("Joao Victor", LeitorCsv.ler(csv));
 
     ClassicThemeFactory tema = new ClassicThemeFactory();

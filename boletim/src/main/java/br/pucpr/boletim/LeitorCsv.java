@@ -9,6 +9,15 @@ import java.util.List;
 /** Le o arquivo de notas. Formato: materia,professor,nota1,nota2,... (primeira linha = cabecalho) */
 public class LeitorCsv {
 
+  /** Procura o csv na pasta atual e, se nao achar, dentro de boletim/ (quando roda pela IDE). */
+  public static Path acharArquivo(String nome) {
+    Path arquivo = Path.of(nome);
+    if (!Files.exists(arquivo) && Files.exists(Path.of("boletim", nome))) {
+      return Path.of("boletim", nome);
+    }
+    return arquivo;
+  }
+
   public static List<Materia> ler(Path arquivo) throws IOException {
     return lerLinhas(Files.readAllLines(arquivo));
   }
