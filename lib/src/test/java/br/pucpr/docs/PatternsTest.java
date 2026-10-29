@@ -136,4 +136,28 @@ class PatternsTest {
     assertTrue(txt.trim().endsWith("%%EOF"));
     assertTrue(txt.contains("(Ol\u00e1) Tj"));
   }
+
+  @Test
+  void temasTemPaletasDiferentes() {
+    var classico = new ClassicThemeFactory().createPalette();
+    var escuro = new DarkThemeFactory().createPalette();
+    assertNotEquals(classico.cssFont(), escuro.cssFont());
+    assertEquals(br.pucpr.docs.theme.Palette.PdfFont.TIMES, classico.pdfFont());
+    assertNull(classico.zebra());
+  }
+
+  @Test
+  void destaqueDeLinhaAparecemNoHtmlENoPdf() {
+    br.pucpr.docs.export.RowHighlighter h = (head, row) -> row.get(0).equals("Ana")
+        ? br.pucpr.docs.export.RowHighlighter.Highlight.POSITIVE
+        : br.pucpr.docs.export.RowHighlighter.Highlight.NONE;
+    String html = new HtmlExporter().highlightRows(h).export(Fixtures.sample());
+    assertTrue(html.contains("<tr class=\"forte positivo\"><td>Ana</td>"));
+    assertTrue(html.startsWith("<!DOCTYPE html>"));
+    String md = new MarkdownExporter().highlightRows(h).export(Fixtures.sample());
+    assertTrue(md.contains("| **Ana** | **10** |"));
+    String pdf = new PdfExporter().export(Fixtures.sample());
+    assertTrue(pdf.contains("/Times-Bold"));
+    assertTrue(pdf.contains("(P\u00e1gina 1 de 1) Tj"));
+  }
 }
