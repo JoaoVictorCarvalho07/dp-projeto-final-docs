@@ -115,13 +115,13 @@ public class ServidorWeb {
     }
   }
 
-  /** Formatos que aparecem na pagina: id, nome, icone, se e da lib e uma descricao curta. */
+  /** Formatos que aparecem na pagina: id, nome, se e da lib e uma descricao curta. */
   private static final String[][] FORMATOS = {
-    {"html", "HTML", "\uD83C\uDF10", "lib", "Pagina completa com o CSS do tema."},
-    {"pdf", "PDF", "\uD83D\uDCC4", "lib", "PDF de verdade, feito na mao dentro da lib."},
-    {"markdown", "Markdown", "\uD83D\uDCDD", "lib", "Texto com tabelas, com marca d'agua e paginas."},
-    {"csv", "CSV", "\uD83D\uDCCA", "ext", "Separado por ; pra abrir direto no Excel."},
-    {"docx", "DOCX", "\uD83D\uDCD8", "ext", "Word com estilos, tabela e rodape."},
+    {"html", "HTML", "lib", "Pagina completa com o CSS do tema."},
+    {"pdf", "PDF", "lib", "PDF de verdade, feito na mao dentro da lib."},
+    {"markdown", "Markdown", "lib", "Texto com tabelas, com marca d'agua e paginas."},
+    {"csv", "CSV", "ext", "Separado por ; pra abrir direto no Excel."},
+    {"docx", "DOCX", "ext", "Word com estilos, tabela e rodape."},
   };
 
   private static String pagina(String tema) {
@@ -133,11 +133,10 @@ public class ServidorWeb {
 
     StringBuilder cards = new StringBuilder();
     for (String[] f : FORMATOS) {
-      boolean lib = f[3].equals("lib");
-      cards.append("<article class=\"card\"><div class=\"topo\"><span class=\"icone\">").append(f[2])
-          .append("</span><span class=\"badge ").append(lib ? "b-lib" : "b-ext").append("\">")
+      boolean lib = f[2].equals("lib");
+      cards.append("<article class=\"card\"><div class=\"topo\"><span class=\"badge ").append(lib ? "b-lib" : "b-ext").append("\">")
           .append(lib ? "lib" : "extens&atilde;o").append("</span></div><h3>").append(f[1])
-          .append("</h3><p>").append(f[4]).append("</p><div class=\"botoes\">")
+          .append("</h3><p>").append(f[3]).append("</p><div class=\"botoes\">")
           .append("<a class=\"btn\" href=\"/ver/").append(f[0]).append("?tema=").append(tema)
           .append("\" data-fmt=\"").append(f[0]).append("\" onclick=\"return ver(this)\">Visualizar</a>")
           .append("<a class=\"btn sec\" href=\"/baixar/").append(f[0]).append("?tema=").append(tema)
@@ -182,7 +181,6 @@ public class ServidorWeb {
         display:flex;flex-direction:column;border-top:4px solid var(--cor);transition:transform .15s}
       .card:hover{transform:translateY(-3px)}
       .topo{display:flex;justify-content:space-between;align-items:center}
-      .icone{font-size:30px}
       .badge{font-size:11px;font-weight:700;text-transform:uppercase;padding:3px 9px;border-radius:999px;
         font-family:'Segoe UI',Arial,sans-serif;letter-spacing:.5px}
       .b-lib{background:#e8eef8;color:#2a4a7f}
