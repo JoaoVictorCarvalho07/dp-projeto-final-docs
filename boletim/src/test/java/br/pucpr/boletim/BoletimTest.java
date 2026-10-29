@@ -37,11 +37,13 @@ class BoletimTest {
   }
 
   @Test
-  void latexExporterGeraTabela() {
-    String tex = new LatexExporter().export(doc());
-    assertTrue(tex.startsWith("\\documentclass{article}"));
-    assertTrue(tex.contains("N1 & 8.0 \\\\"));
-    assertTrue(tex.trim().endsWith("\\end{document}"));
+  void csvExporterGeraLinhasComPontoEVirgula() {
+    String csv = new CsvExporter().export(doc());
+    String[] linhas = csv.split("\n");
+    assertEquals("\uFEFFMateria;Professor;Avaliacao;Nota", linhas[0]);
+    assertTrue(csv.contains("Design Patterns;Prof. X;N1;8.0\n"));
+    assertTrue(csv.contains("Design Patterns;Prof. X;Media;8.5\n"));
+    assertEquals("Resumo;;Media geral;7.0", linhas[linhas.length - 1]);
   }
 
   @Test
@@ -81,7 +83,7 @@ class BoletimTest {
 
   @Test
   void servidorConheceTodosOsFormatos() {
-    for (String f : new String[] {"markdown", "html", "latex", "pdf", "docx"}) {
+    for (String f : new String[] {"markdown", "html", "csv", "pdf", "docx"}) {
       assertNotNull(ServidorWeb.exportar(f, "classico", doc()), f);
     }
     assertNull(ServidorWeb.exportar("xls", "classico", doc()));
