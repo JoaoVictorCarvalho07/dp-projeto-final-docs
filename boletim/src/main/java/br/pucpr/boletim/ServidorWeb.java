@@ -46,8 +46,9 @@ public class ServidorWeb {
         return texto(decorar(new MarkdownExporter(t), pucpr).export(doc), "text/markdown", "md");
       case "html":
         return texto(decorar(new HtmlExporter(t), pucpr).export(doc), "text/html", "html");
-      case "latex":
-        return texto(decorar(new LatexExporter(t), pucpr).export(doc), "application/x-latex", "tex");
+      case "csv":
+        // csv tambem nao passa pelos decorators, senao o Excel abre errado
+        return texto(new CsvExporter().export(doc), "text/csv", "csv");
       case "pdf":
         // binario: nao passa pelos decorators de texto
         return new Arquivo(new PdfExporter(t).exportBytes(doc), "application/pdf", "pdf");
@@ -90,9 +91,9 @@ public class ServidorWeb {
         if (arq != null) {
           String nome = "boletim-" + tema + "." + arq.extensao();
           String disp = partes[1].equals("baixar") ? "attachment" : "inline";
-          // markdown/latex aparecem como texto no navegador na hora de visualizar
-          String tipo = disp.equals("inline") && arq.contentType().startsWith("text/markdown")
-              || disp.equals("inline") && arq.extensao().equals("tex")
+          // markdown/csv aparecem como texto no navegador na hora de visualizar
+          String tipo = disp.equals("inline")
+              && (arq.extensao().equals("md") || arq.extensao().equals("csv"))
               ? "text/plain; charset=utf-8" : arq.contentType();
           ex.getResponseHeaders().set("Content-Disposition", disp + "; filename=\"" + nome + "\"");
           responder(ex, 200, tipo, arq.bytes());
@@ -119,7 +120,7 @@ public class ServidorWeb {
     item(h, "HTML", "html", tema);
     item(h, "PDF", "pdf", tema);
     h.append("</ul><h2>Extens&otilde;es do boletim</h2><ul>");
-    item(h, "LaTeX", "latex", tema);
+    item(h, "CSV", "csv", tema);
     item(h, "DOCX", "docx", tema);
     h.append("</ul></body></html>");
     return h.toString();

@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.util.Scanner;
 
 /**
- * Caso de extensao (Open/Closed): LatexExporter, PucprThemeFactory e ConfidencialDecorator foram
+ * Caso de extensao (Open/Closed): CsvExporter, PucprThemeFactory e ConfidencialDecorator foram
  * criados aqui no boletim. A lib continua igual.
  */
 public class DemoExtensao {
@@ -18,21 +18,21 @@ public class DemoExtensao {
 
     PucprThemeFactory tema = new PucprThemeFactory();
 
-    // exportador novo + tema novo + decorator novo, misturado com um decorator da lib
-    DocumentExporter latex =
-        new PageNumberDecorator(new ConfidencialDecorator(new LatexExporter(tema)), 40);
+    // exportador novo (sem decorator, pra nao estragar o csv)
+    DocumentExporter csvExp = new CsvExporter();
 
-    // exportador da lib usando o tema novo
-    DocumentExporter html = new ConfidencialDecorator(new HtmlExporter(tema));
+    // exportador da lib usando o tema novo + decorator novo + decorator da lib
+    DocumentExporter html =
+        new PageNumberDecorator(new ConfidencialDecorator(new HtmlExporter(tema)), 40);
 
     System.out.println("Escolha o formato do boletim:");
-    System.out.println("1 - LaTeX (exportador novo, tema PUCPR)");
+    System.out.println("1 - CSV (exportador novo, abre no Excel)");
     System.out.println("2 - HTML da lib com tema PUCPR");
     System.out.print("> ");
     String opcao = new Scanner(System.in).nextLine().trim();
 
     switch (opcao) {
-      case "1" -> System.out.println(latex.export(doc));
+      case "1" -> System.out.println(csvExp.export(doc));
       case "2" -> System.out.println(html.export(doc));
       default -> System.out.println("Opcao invalida: " + opcao);
     }
