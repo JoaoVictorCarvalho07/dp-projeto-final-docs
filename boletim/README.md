@@ -22,11 +22,12 @@ embrulhados em `WatermarkDecorator("RASCUNHO")` e `PageNumberDecorator`. Nenhuma
 
 ## Caso de extensao (`DemoExtensao`)
 
-Tres classes novas, todas aqui no modulo `boletim`:
+Tres classes novas, todas aqui no modulo `boletim`. O `CsvExporter` gera `;` e BOM UTF-8
+(abre direto no Excel em portugues), colunas `Materia;Professor;Avaliacao;Nota`:
 
 | Classe | Estende / implementa | Pattern |
 | --- | --- | --- |
-| `LatexExporter` | `AbstractExporter` | Template Method + Visitor |
+| `CsvExporter` | `AbstractExporter` | Template Method + Visitor |
 | `PucprThemeFactory` | `ThemeFactory` | Abstract Factory |
 | `ConfidencialDecorator` | `ExporterDecorator` | Decorator |
 
@@ -43,7 +44,7 @@ Elas se misturam com o que ja existe na lib (ex.: `HtmlExporter` com o tema PUCP
 Abre http://localhost:8080 . A pagina lista os formatos:
 
 - **da lib:** Markdown, HTML e PDF (`PdfExporter`, PDF de verdade escrito na mao dentro da lib)
-- **extensoes do boletim:** LaTeX e DOCX
+- **extensoes do boletim:** CSV e DOCX
 
 Cada um tem "Visualizar" (abre no navegador) e "Baixar" (download com o nome do arquivo certo).
 Da pra trocar o tema com `?tema=classico` ou `?tema=pucpr`. No classico os textos levam
@@ -61,8 +62,8 @@ de saida que ela nem previa, sem mexer numa linha dela (Open/Closed).
 O DOCX e montado na mao (`[Content_Types].xml`, `_rels/.rels` e `word/document.xml` num zip),
 sem Apache POI, pra nao puxar uma dependencia pesada.
 
-Os decorators da lib trabalham com texto, entao PDF e DOCX nao passam por eles (estragaria o
-arquivo). No DOCX o aviso (RASCUNHO/CONFIDENCIAL) vai como primeiro paragrafo.
+Os decorators da lib trabalham com texto, entao PDF, DOCX e CSV nao passam por eles (estragaria o
+arquivo; no CSV o Excel ia ler a marca d'agua como se fosse uma linha de dados). No DOCX o aviso (RASCUNHO/CONFIDENCIAL) vai como primeiro paragrafo.
 
 ## Lib intacta
 
