@@ -91,7 +91,7 @@ public class HtmlExporter extends AbstractExporter {
         + "border-bottom:4px solid " + p.accent() + "}\n"
         + ".doc-header h1{margin:0;font-size:" + (p.titleSize() + 8) + "px;letter-spacing:.5px}\n"
         + ".doc-header h1{" + theme.createTitleStyle().css() + "color:" + p.headerText() + "}\n"
-        + ".autor{margin:6px 0 0;opacity:.85}\n"
+        + ".doc-header .autor{margin:6px 0 0;opacity:.85;color:" + p.headerText() + "}\n"
         + "main{padding:12px 24px 40px}\n"
         + "section{margin-top:28px}\n"
         + "h2,h3,h4{color:" + p.primary() + ";margin:0 0 8px;font-size:" + (p.headingSize() + 6) + "px;"

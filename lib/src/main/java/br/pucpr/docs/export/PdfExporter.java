@@ -107,7 +107,7 @@ public class PdfExporter extends AbstractExporter {
       };
       celulas(row, col, alt, tam, h != RowHighlighter.Highlight.NONE, cor, fundo);
     }
-    y -= 16;
+    y -= 24;
   }
 
   @Override
