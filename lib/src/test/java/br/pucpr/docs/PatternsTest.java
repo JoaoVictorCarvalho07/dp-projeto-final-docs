@@ -8,6 +8,7 @@ import br.pucpr.docs.decorator.WatermarkDecorator;
 import br.pucpr.docs.export.AbstractExporter;
 import br.pucpr.docs.export.HtmlExporter;
 import br.pucpr.docs.export.MarkdownExporter;
+import br.pucpr.docs.export.PdfExporter;
 import br.pucpr.docs.export.PdfTextExporter;
 import br.pucpr.docs.model.Document;
 import br.pucpr.docs.model.Node;
@@ -125,5 +126,14 @@ class PatternsTest {
     Section introB = (Section) b.getRoot().getChildren().get(0);
     assertEquals("Olá", ((Paragraph) introB.getChildren().get(0)).getText());
     assertThrows(IllegalArgumentException.class, () -> reg.create("nao-existe"));
+  }
+
+  @Test
+  void pdfExporterGeraPdfDeVerdade() {
+    byte[] pdf = new PdfExporter().exportBytes(Fixtures.sample());
+    String txt = new String(pdf, java.nio.charset.StandardCharsets.ISO_8859_1);
+    assertTrue(txt.startsWith("%PDF-1.4"));
+    assertTrue(txt.trim().endsWith("%%EOF"));
+    assertTrue(txt.contains("(Ol\u00e1) Tj"));
   }
 }
