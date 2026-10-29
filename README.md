@@ -77,7 +77,8 @@ montar -> percorrer -> exportar -> decorar.
 | Extensão que o cliente quer | Como faz | Mexe na lib? |
 | --- | --- | --- |
 | Novo formato (JSON, CSV...) | estende `AbstractExporter` | não |
-| Novo tema | implementa `ThemeFactory` | não |
+| Novo tema | implementa `ThemeFactory` (e `createPalette()`) | não |
+| Destacar linhas de tabela | implementa `RowHighlighter` | não |
 | Novo efeito de saída | estende `ExporterDecorator` | não |
 | Novo modelo de documento | `TemplateRegistry.register(...)` | não |
 | Novo percurso | implementa `Iterator<Node>` | não |
@@ -87,10 +88,11 @@ montar -> percorrer -> exportar -> decorar.
 
 - Adicionar um tipo de nó exige mudar o `DocumentVisitor` (custo clássico do Visitor).
 - O `PdfTextExporter` continua sendo texto simplificado. O PDF de verdade é o `PdfExporter`, escrito na
-  mão (fonte Helvetica, Latin-1, sem imagens). Ele não deve ser embrulhado nos decorators de texto.
+  mão (Helvetica ou Times conforme o tema, Latin-1, sem imagens; a largura do texto é estimada). Ele não deve ser embrulhado nos decorators de texto.
 - O `PageNumberDecorator` pagina por número de linhas, não por altura real da página. A última
   página nunca fica com uma linha só, porque essa linha é juntada à página anterior.
-- Os estilos dos temas são simples (CSS inline e formatação de título).
+- Cada tema tem uma `Palette` (cores, fontes, tamanhos) que o HTML e o PDF usam; temas antigos
+  que não definem a sua ganham a paleta neutra.
 
 ## Próximos passos (até a final em 12/11)
 

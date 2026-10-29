@@ -23,7 +23,7 @@ lib/      -> a biblioteca (br.pucpr.docs), com testes JUnit 5
   builder/    DocumentBuilder                              (Builder)
   visitor/    DocumentVisitor                              (Visitor)
   export/     AbstractExporter, Html/Markdown/PdfText/Pdf  (Template Method + Visitor)
-  theme/      ThemeFactory, Classic/Dark                   (Abstract Factory)
+  theme/      ThemeFactory, Classic/Dark, Palette          (Abstract Factory)
   decorator/  Watermark/PageNumber                         (Decorator)
   iterator/   DepthFirstIterator                           (Iterator)
   prototype/  TemplateRegistry                             (Prototype)
@@ -92,6 +92,12 @@ byte[] pdfReal = new PdfExporter().exportBytes(doc); // PDF binário de verdade
 - **Problema:** estilos de título, parágrafo e tabela precisam combinar entre si.
 - **Solução:** cada fábrica cria a família inteira de estilos de um tema.
 - **Open/Closed:** um tema novo é só uma fábrica nova; os exportadores não mudam.
+- **Paleta:** a fábrica também cria uma `Palette` (cores, fontes do HTML/PDF/DOCX, tamanhos, zebra
+  da tabela, verde/vermelho de destaque). `createPalette()` é um método `default` (devolve
+  `Palette.neutra()`), então quem já implementava `ThemeFactory` continua compilando.
+- **Destaque de linhas (Strategy):** `export/RowHighlighter` diz quais linhas da tabela destacar
+  (`STRONG`, `POSITIVE`, `NEGATIVE`). Liga com `exporter.highlightRows(...)`; HTML, Markdown e PDF
+  pintam com as cores da paleta. A lib não sabe a regra, quem sabe é o cliente.
 
 ### 5. Template Method — `export/AbstractExporter.export()`
 - **Problema:** todo exportador segue o mesmo fluxo: cabeçalho → corpo → rodapé.
