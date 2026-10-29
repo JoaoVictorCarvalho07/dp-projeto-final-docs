@@ -26,3 +26,11 @@ tasks.named<JavaExec>("run") {
     workingDir = projectDir
     standardInput = System.`in`
 }
+
+// sobe o site do boletim: ./gradlew :boletim:runWeb  ->  http://localhost:8080
+tasks.register<JavaExec>("runWeb") {
+    group = "application"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "br.pucpr.boletim.ServidorWeb"
+    workingDir = projectDir
+}
