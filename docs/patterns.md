@@ -22,7 +22,7 @@ lib/      -> a biblioteca (br.pucpr.docs), com testes JUnit 5
   model/      Node, Section, Paragraph, Table, Document   (Composite, Prototype)
   builder/    DocumentBuilder                              (Builder)
   visitor/    DocumentVisitor                              (Visitor)
-  export/     AbstractExporter, Html/Markdown/PdfText      (Template Method + Visitor)
+  export/     AbstractExporter, Html/Markdown/PdfText/Pdf  (Template Method + Visitor)
   theme/      ThemeFactory, Classic/Dark                   (Abstract Factory)
   decorator/  Watermark/PageNumber                         (Decorator)
   iterator/   DepthFirstIterator                           (Iterator)
@@ -65,6 +65,7 @@ Document doc = DocumentBuilder.create("Relatório")
 String html = new HtmlExporter(new DarkThemeFactory()).export(doc);
 String pdf  = new PageNumberDecorator(new WatermarkDecorator(new PdfTextExporter(), "RASCUNHO"), 40)
                   .export(doc);
+byte[] pdfReal = new PdfExporter().exportBytes(doc); // PDF binário de verdade
 ```
 
 ## Os 8 patterns
@@ -140,6 +141,7 @@ classDiagram
     AbstractExporter <|-- HtmlExporter
     AbstractExporter <|-- MarkdownExporter
     AbstractExporter <|-- PdfTextExporter
+    AbstractExporter <|-- PdfExporter
     AbstractExporter <|-- JsonExporter : example (fora da lib)
     AbstractExporter --> ThemeFactory
     class ThemeFactory { <<interface>> +createTitleStyle() +createParagraphStyle() +createTableStyle() }
@@ -155,6 +157,6 @@ classDiagram
 ```
 
 ## Próximos passos (até a final em 12/11)
-- PDF de verdade (OpenPDF/PDFBox) dentro do `PdfTextExporter`.
+- ~~PDF de verdade~~ feito: `PdfExporter`, escrito na mão, sem dependência.
 - Mais um tema e mais um decorator (ex: sumário).
 - Spotless/SpotBugs como no repo do professor.

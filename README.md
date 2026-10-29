@@ -86,13 +86,13 @@ montar -> percorrer -> exportar -> decorar.
 ## Trade-offs e limitações conhecidas
 
 - Adicionar um tipo de nó exige mudar o `DocumentVisitor` (custo clássico do Visitor).
-- O "PDF" é texto simplificado, sem uma biblioteca de PDF de verdade.
+- O `PdfTextExporter` continua sendo texto simplificado. O PDF de verdade é o `PdfExporter`, escrito na
+  mão (fonte Helvetica, Latin-1, sem imagens). Ele não deve ser embrulhado nos decorators de texto.
 - O `PageNumberDecorator` pagina por número de linhas, não por altura real da página. A última
   página nunca fica com uma linha só, porque essa linha é juntada à página anterior.
 - Os estilos dos temas são simples (CSS inline e formatação de título).
 
 ## Próximos passos (até a final em 12/11)
 
-- PDF real com OpenPDF ou PDFBox dentro do `PdfTextExporter`.
 - Mais um tema e mais um decorator (ex: sumário).
 - Spotless e SpotBugs, como no repo do professor.
