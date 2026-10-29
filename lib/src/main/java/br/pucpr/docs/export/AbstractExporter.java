@@ -17,6 +17,7 @@ public abstract class AbstractExporter implements DocumentExporter, DocumentVisi
   protected final ThemeFactory theme;
   protected StringBuilder out;
   protected int depth;
+  protected RowHighlighter highlighter = RowHighlighter.NONE;
 
   protected AbstractExporter(ThemeFactory theme) {
     this.theme = theme;
@@ -24,6 +25,12 @@ public abstract class AbstractExporter implements DocumentExporter, DocumentVisi
 
   protected AbstractExporter() {
     this(new ClassicThemeFactory());
+  }
+
+  /** Liga o destaque de linhas de tabela (Strategy). Devolve o próprio exportador. */
+  public AbstractExporter highlightRows(RowHighlighter highlighter) {
+    this.highlighter = highlighter == null ? RowHighlighter.NONE : highlighter;
+    return this;
   }
 
   /** O template method: final pra ninguém mudar a ordem dos passos. */
