@@ -1,5 +1,6 @@
 package br.pucpr.boletim;
 
+import br.pucpr.docs.export.RowHighlighter;
 import br.pucpr.docs.model.Document;
 import br.pucpr.docs.model.Node;
 import br.pucpr.docs.model.Section;
@@ -14,11 +15,18 @@ public abstract class AbstractBinaryExporter implements BinaryExporter, Document
   protected final ThemeFactory theme;
   protected final String aviso;
   protected int depth;
+  protected RowHighlighter highlighter = RowHighlighter.NONE;
 
   /** aviso: texto que vai no topo (ex: "RASCUNHO"), pode ser null. */
   protected AbstractBinaryExporter(ThemeFactory theme, String aviso) {
     this.theme = theme;
     this.aviso = aviso;
+  }
+
+  /** Mesmo destaque de linhas que os exportadores da lib usam. */
+  public AbstractBinaryExporter highlightRows(RowHighlighter h) {
+    this.highlighter = h == null ? RowHighlighter.NONE : h;
+    return this;
   }
 
   @Override
