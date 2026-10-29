@@ -50,7 +50,7 @@ public class DocxExporter extends AbstractBinaryExporter {
           .append(hex(p.muted())).append("\"/><w:sz w:val=\"16\"/></w:rPr><w:t>")
           .append(esc(aviso)).append("</w:t></w:r></w:p>");
     }
-    body.append("<w:p><w:pPr><w:pStyle w:val=\"Title\"/></w:pPr><w:r><w:t xml:space=\"preserve\"> ")
+    body.append("<w:p><w:pPr><w:pStyle w:val=\"Title\"/></w:pPr><w:r><w:t xml:space=\"preserve\">")
         .append(esc(tituloDoc)).append("</w:t></w:r></w:p>");
     if (!d.getAuthor().isBlank()) {
       body.append("<w:p><w:pPr><w:pStyle w:val=\"Subtitle\"/></w:pPr><w:r><w:t>")
