@@ -38,7 +38,15 @@ public class MarkdownExporter extends AbstractExporter {
     out.append("| ").append(String.join(" | ", t.getHeaders())).append(" |\n");
     out.append("|").append(" --- |".repeat(t.getHeaders().size())).append("\n");
     for (var row : t.getRows()) {
-      out.append("| ").append(String.join(" | ", row)).append(" |\n");
+      boolean forte = highlighter.highlight(t.getHeaders(), row) != RowHighlighter.Highlight.NONE;
+      out.append("| ");
+      for (int i = 0; i < row.size(); i++) {
+        if (i > 0) {
+          out.append(" | ");
+        }
+        out.append(forte ? "**" + row.get(i) + "**" : row.get(i));
+      }
+      out.append(" |\n");
     }
     out.append("\n");
   }
