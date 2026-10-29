@@ -12,4 +12,12 @@ public interface ThemeFactory {
   ParagraphStyle createParagraphStyle();
 
   TableStyle createTableStyle();
+
+  /**
+   * Cores, fontes e tamanhos do tema. É default pra não quebrar quem já implementava a interface
+   * (temas antigos ganham a paleta neutra).
+   */
+  default Palette createPalette() {
+    return Palette.neutra();
+  }
 }

@@ -1,7 +1,13 @@
 package br.pucpr.docs.theme;
 
-/** Tema clássico: serifado, títulos em maiúsculas. */
+/** Tema clássico: serifado, preto no branco, sóbrio. Títulos em maiúsculas. */
 public final class ClassicThemeFactory implements ThemeFactory {
+  private static final Palette PALETA = new Palette(
+      "Georgia, 'Times New Roman', Times, serif", "Times New Roman", Palette.PdfFont.TIMES,
+      "#111111", "#555555", "#ffffff", "#000000", "#333333",
+      "#ffffff", "#000000", "#e6e6e6", "#000000", null, "#000000",
+      "#1b5e20", "#b71c1c", 24, 15, 11);
+
   @Override
   public String name() {
     return "classic";
@@ -40,5 +46,10 @@ public final class ClassicThemeFactory implements ThemeFactory {
         return " | ";
       }
     };
+  }
+
+  @Override
+  public Palette createPalette() {
+    return PALETA;
   }
 }

@@ -41,4 +41,13 @@ public final class DarkThemeFactory implements ThemeFactory {
       }
     };
   }
+
+  @Override
+  public Palette createPalette() {
+    return new Palette(
+        "'Segoe UI', Arial, sans-serif", "Segoe UI", Palette.PdfFont.HELVETICA,
+        "#dddddd", "#999999", "#111111", "#eeeeee", "#4fc3f7",
+        "#000000", "#eeeeee", "#333333", "#ffffff", "#1a1a1a", "#444444",
+        "#81c784", "#e57373", 22, 15, 11);
+  }
 }
