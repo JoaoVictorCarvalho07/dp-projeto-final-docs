@@ -8,6 +8,7 @@ import br.pucpr.docs.export.MarkdownExporter;
 import br.pucpr.docs.model.Document;
 import br.pucpr.docs.theme.ClassicThemeFactory;
 import java.nio.file.Path;
+import java.util.Scanner;
 
 /** Caso padrao: usa so o que ja vem na lib, sem criar nenhuma classe nova. */
 public class DemoPadrao {
@@ -22,9 +23,16 @@ public class DemoPadrao {
     DocumentExporter html =
         new PageNumberDecorator(new WatermarkDecorator(new HtmlExporter(tema), "RASCUNHO"), 20);
 
-    System.out.println("===== Markdown =====");
-    System.out.println(md.export(doc));
-    System.out.println("===== HTML =====");
-    System.out.println(html.export(doc));
+    System.out.println("Escolha o formato do boletim:");
+    System.out.println("1 - Markdown");
+    System.out.println("2 - HTML");
+    System.out.print("> ");
+    String opcao = new Scanner(System.in).nextLine().trim();
+
+    switch (opcao) {
+      case "1" -> System.out.println(md.export(doc));
+      case "2" -> System.out.println(html.export(doc));
+      default -> System.out.println("Opcao invalida: " + opcao);
+    }
   }
 }

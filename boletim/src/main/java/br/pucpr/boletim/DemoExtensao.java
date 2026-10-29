@@ -5,6 +5,7 @@ import br.pucpr.docs.export.DocumentExporter;
 import br.pucpr.docs.export.HtmlExporter;
 import br.pucpr.docs.model.Document;
 import java.nio.file.Path;
+import java.util.Scanner;
 
 /**
  * Caso de extensao (Open/Closed): LatexExporter, PucprThemeFactory e ConfidencialDecorator foram
@@ -24,9 +25,16 @@ public class DemoExtensao {
     // exportador da lib usando o tema novo
     DocumentExporter html = new ConfidencialDecorator(new HtmlExporter(tema));
 
-    System.out.println("===== LaTeX (tema PUCPR) =====");
-    System.out.println(latex.export(doc));
-    System.out.println("===== HTML da lib com tema PUCPR =====");
-    System.out.println(html.export(doc));
+    System.out.println("Escolha o formato do boletim:");
+    System.out.println("1 - LaTeX (exportador novo, tema PUCPR)");
+    System.out.println("2 - HTML da lib com tema PUCPR");
+    System.out.print("> ");
+    String opcao = new Scanner(System.in).nextLine().trim();
+
+    switch (opcao) {
+      case "1" -> System.out.println(latex.export(doc));
+      case "2" -> System.out.println(html.export(doc));
+      default -> System.out.println("Opcao invalida: " + opcao);
+    }
   }
 }

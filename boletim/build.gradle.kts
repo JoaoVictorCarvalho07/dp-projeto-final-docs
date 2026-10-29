@@ -19,6 +19,10 @@ tasks.register<JavaExec>("runExtensao") {
     classpath = sourceSets["main"].runtimeClasspath
     mainClass = "br.pucpr.boletim.DemoExtensao"
     workingDir = projectDir
+    standardInput = System.`in`
 }
 
-tasks.named<JavaExec>("run") { workingDir = projectDir }
+tasks.named<JavaExec>("run") {
+    workingDir = projectDir
+    standardInput = System.`in`
+}
