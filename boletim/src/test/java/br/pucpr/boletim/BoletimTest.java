@@ -88,4 +88,40 @@ class BoletimTest {
     }
     assertNull(ServidorWeb.exportar("xls", "classico", doc()));
   }
+
+  @Test
+  void destaqueMediaVerdeOuVermelho() {
+    DestaqueMedia d = new DestaqueMedia();
+    assertEquals(br.pucpr.docs.export.RowHighlighter.Highlight.POSITIVE, d.highlight(List.of(), List.of("Media", "8.5")));
+    assertEquals(br.pucpr.docs.export.RowHighlighter.Highlight.NEGATIVE, d.highlight(List.of(), List.of("Media", "5.5")));
+    assertEquals(br.pucpr.docs.export.RowHighlighter.Highlight.NONE, d.highlight(List.of(), List.of("N1", "5.5")));
+  }
+
+  @Test
+  void docxTemEstilosERodape() throws Exception {
+    byte[] docx = new DocxExporter(new PucprThemeFactory(), null).export(doc());
+    java.util.Set<String> nomes = new java.util.HashSet<>();
+    String estilos = "";
+    try (var zip = new java.util.zip.ZipInputStream(new java.io.ByteArrayInputStream(docx))) {
+      java.util.zip.ZipEntry e;
+      while ((e = zip.getNextEntry()) != null) {
+        nomes.add(e.getName());
+        if (e.getName().equals("word/styles.xml")) {
+          estilos = new String(zip.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        }
+      }
+    }
+    assertTrue(nomes.contains("word/footer1.xml"));
+    assertTrue(estilos.contains("Heading1"));
+    assertTrue(estilos.contains("7A1A2B"));
+  }
+
+  @Test
+  void temaPucprEhDiferenteDoClassico() {
+    var pucpr = new PucprThemeFactory().createPalette();
+    var classico = new br.pucpr.docs.theme.ClassicThemeFactory().createPalette();
+    assertEquals("#7a1a2b", pucpr.primary());
+    assertNotNull(pucpr.zebra());
+    assertNotEquals(classico.pdfFont(), pucpr.pdfFont());
+  }
 }
