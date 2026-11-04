@@ -82,6 +82,23 @@ class BoletimTest {
   }
 
   @Test
+  void htmlDoServidorTemMarcaVisual() {
+    String classico = new String(ServidorWeb.exportar("html", "classico", doc()).bytes(),
+        java.nio.charset.StandardCharsets.UTF_8);
+    String pucpr = new String(ServidorWeb.exportar("html", "pucpr", doc()).bytes(),
+        java.nio.charset.StandardCharsets.UTF_8);
+    assertTrue(classico.startsWith("<!DOCTYPE"));
+    int marca = classico.indexOf("<div class=\"marca-dagua\">");
+    assertTrue(marca >= 0 && marca == classico.lastIndexOf("<div class=\"marca-dagua\">"));
+    assertTrue(marca < classico.indexOf("</body>"));
+    assertTrue(classico.contains(">RASCUNHO</div>"));
+    assertTrue(pucpr.contains(">CONFIDENCIAL</div>"));
+    String md = new String(ServidorWeb.exportar("markdown", "classico", doc()).bytes(),
+        java.nio.charset.StandardCharsets.UTF_8);
+    assertTrue(md.startsWith("[MARCA D'ÁGUA: RASCUNHO]"));
+  }
+
+  @Test
   void servidorConheceTodosOsFormatos() {
     for (String f : new String[] {"markdown", "html", "csv", "pdf", "docx"}) {
       assertNotNull(ServidorWeb.exportar(f, "classico", doc()), f);
