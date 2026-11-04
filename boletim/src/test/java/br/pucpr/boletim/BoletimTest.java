@@ -59,6 +59,27 @@ class BoletimTest {
   }
 
   @Test
+  void pdfDoServidorTemMarcaEmCadaPagina() {
+    String classico = pdf("classico");
+    String pucpr = pdf("pucpr");
+    assertTrue(classico.startsWith("%PDF-1.4"));
+    assertTrue(classico.trim().endsWith("%%EOF"));
+    assertTrue(pucpr.startsWith("%PDF-1.4"));
+    assertEquals(classico.indexOf("\nxref\n") + 1,
+        Integer.parseInt(classico.split("startxref\n")[1].split("\n")[0]));
+    assertEquals(classico.split("/Type /Page ", -1).length - 1,
+        classico.split("\\(RASCUNHO\\) Tj", -1).length - 1);
+    assertTrue(classico.contains("(RASCUNHO) Tj"));
+    assertEquals(pucpr.split("/Type /Page ", -1).length - 1,
+        pucpr.split("\\(CONFIDENCIAL\\) Tj", -1).length - 1);
+  }
+
+  private String pdf(String tema) {
+    return new String(ServidorWeb.exportar("pdf", tema, doc()).bytes(),
+        java.nio.charset.StandardCharsets.ISO_8859_1);
+  }
+
+  @Test
   void pdfDaLibComecaComPdf() {
     byte[] pdf = new br.pucpr.docs.export.PdfExporter(new PucprThemeFactory()).exportBytes(doc());
     assertEquals("%PDF", new String(pdf, 0, 4, java.nio.charset.StandardCharsets.ISO_8859_1));
