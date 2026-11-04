@@ -8,10 +8,10 @@ efeitos entram **sem alterar a biblioteca** (Open/Closed).
 
 | Aluno | Nome completo | Patterns |
 | --- | --- | --- |
-| Aluno 1 | NOME COMPLETO | Builder + Composite |
-| Aluno 2 | NOME COMPLETO | Visitor + Template Method |
-| Aluno 3 | NOME COMPLETO | Decorator + Iterator |
-| Aluno 4 | NOME COMPLETO | Abstract Factory + Prototype |
+| Aluno 1 | Joao Victor Carvalho de Freitas | Builder + Composite |
+| Aluno 2 | Matheus Heinzen | Visitor + Template Method |
+| Aluno 3 | Bruna Carnelossi | Decorator + Iterator |
+| Aluno 4 | João Pedro de Souza | Abstract Factory + Prototype |
 
 **Vídeo:** https://www.youtube.com/watch?v=COLOCAR_LINK_AQUI
 
@@ -166,3 +166,7 @@ classDiagram
 - ~~PDF de verdade~~ feito: `PdfExporter`, escrito na mão, sem dependência.
 - Mais um tema e mais um decorator (ex: sumário).
 - Spotless/SpotBugs como no repo do professor.
+
+## Autores
+
+Joao Victor Carvalho de Freitas, Matheus Heinzen, Bruna Carnelossi e João Pedro de Souza.
