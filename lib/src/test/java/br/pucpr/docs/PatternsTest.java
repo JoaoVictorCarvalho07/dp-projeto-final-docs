@@ -3,6 +3,7 @@ package br.pucpr.docs;
 import static org.junit.jupiter.api.Assertions.*;
 
 import br.pucpr.docs.builder.DocumentBuilder;
+import br.pucpr.docs.decorator.HtmlWatermarkDecorator;
 import br.pucpr.docs.decorator.PageNumberDecorator;
 import br.pucpr.docs.decorator.WatermarkDecorator;
 import br.pucpr.docs.export.AbstractExporter;
@@ -104,6 +105,26 @@ class PatternsTest {
     assertTrue(out.startsWith("[MARCA D'ÁGUA: RASCUNHO]"));
     assertTrue(out.contains("--- Página 1/"));
     assertThrows(IllegalArgumentException.class, () -> new PageNumberDecorator(new HtmlExporter(), 0));
+  }
+
+  @Test
+  void marcaDaguaVisualNoHtml() {
+    Document d = Fixtures.sample();
+    String original = new HtmlExporter().export(d);
+    String html = new HtmlWatermarkDecorator(new HtmlExporter(), "RASCUNHO <x>").export(d);
+    assertTrue(html.startsWith("<!DOCTYPE"));
+    assertTrue(html.startsWith(original.substring(0, original.indexOf("</body>"))));
+    int pos = html.indexOf("<div class=\"marca-dagua\">");
+    assertTrue(pos >= 0);
+    assertEquals(pos, html.lastIndexOf("<div class=\"marca-dagua\">"));
+    assertTrue(pos < html.indexOf("</body>"));
+    assertTrue(html.contains("RASCUNHO &lt;x&gt;"));
+
+    String solto = new HtmlWatermarkDecorator(doc -> "<p>oi</p>", "X").export(d);
+    assertTrue(solto.startsWith("<p>oi</p>"));
+    int noFim = solto.indexOf("<div class=\"marca-dagua\">");
+    assertEquals(noFim, solto.lastIndexOf("<div class=\"marca-dagua\">"));
+    assertTrue(noFim >= "<p>oi</p>".length());
   }
 
   @Test
