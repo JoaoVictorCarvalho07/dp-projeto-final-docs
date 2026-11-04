@@ -1,5 +1,6 @@
 package br.pucpr.boletim;
 
+import br.pucpr.docs.decorator.HtmlWatermarkDecorator;
 import br.pucpr.docs.decorator.PageNumberDecorator;
 import br.pucpr.docs.decorator.WatermarkDecorator;
 import br.pucpr.docs.export.DocumentExporter;
@@ -49,8 +50,9 @@ public class ServidorWeb {
         return texto(decorar(new MarkdownExporter(t).highlightRows(destaque), pucpr).export(doc),
             "text/markdown", "md");
       case "html":
-        // o html agora e uma pagina completa; marca d'agua/paginas por linha estragariam o layout
-        return texto(new HtmlExporter(t).highlightRows(destaque).export(doc), "text/html", "html");
+        // pagina completa: so a marca visual. numerar por linha quebraria o html
+        return texto(decorar(new HtmlExporter(t).highlightRows(destaque), aviso).export(doc),
+            "text/html", "html");
       case "csv":
         // csv tambem nao passa pelos decorators, senao o Excel abre errado
         return texto(new CsvExporter().export(doc), "text/csv", "csv");
@@ -72,6 +74,11 @@ public class ServidorWeb {
   private static DocumentExporter decorar(DocumentExporter base, boolean pucpr) {
     DocumentExporter d = pucpr ? new ConfidencialDecorator(base) : new WatermarkDecorator(base, "RASCUNHO");
     return new PageNumberDecorator(d, 40);
+  }
+
+  /** HTML: marca visual no centro. RASCUNHO no tema padrao, CONFIDENCIAL no PUCPR. */
+  private static DocumentExporter decorar(DocumentExporter base, String aviso) {
+    return new HtmlWatermarkDecorator(base, aviso);
   }
 
   private static Arquivo texto(String s, String tipo, String ext) {
