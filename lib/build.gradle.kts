@@ -3,7 +3,13 @@ plugins {
     `maven-publish`
 }
 
-java { toolchain { languageVersion.set(JavaLanguageVersion.of(21)) } }
+group = "br.pucpr"
+version = "1.0.0"
+
+java {
+    toolchain { languageVersion.set(JavaLanguageVersion.of(21)) }
+    withSourcesJar()
+}
 
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.11.3"))
@@ -15,8 +21,8 @@ tasks.test { useJUnitPlatform() }
 
 publishing {
     publications {
-        create<MavenPublication>("lib") {
-            artifactId = "docs-patterns"
+        create<MavenPublication>("maven") {
+            artifactId = "docs"
             from(components["java"])
         }
     }
