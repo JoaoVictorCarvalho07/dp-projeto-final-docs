@@ -94,6 +94,40 @@ montar -> percorrer -> exportar -> decorar.
 - Cada tema tem uma `Palette` (cores, fontes, tamanhos) que o HTML e o PDF usam; temas antigos
   que não definem a sua ganham a paleta neutra.
 
+## Como usar como dependência
+
+O módulo `lib` publica o artifact `docs`. No JitPack, projeto multi-módulo usa o
+repositório no groupId. Repositório: `https://jitpack.io`.
+
+Gradle:
+
+```gradle
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.JoaoVictorCarvalho07.dp-projeto-final-docs:docs:v1.0.0'
+}
+```
+
+Maven:
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>com.github.JoaoVictorCarvalho07.dp-projeto-final-docs</groupId>
+    <artifactId>docs</artifactId>
+    <version>v1.0.0</version>
+</dependency>
+```
+
 ## Próximos passos (até a final em 12/11)
 
 - Mais um tema e mais um decorator (ex: sumário).
