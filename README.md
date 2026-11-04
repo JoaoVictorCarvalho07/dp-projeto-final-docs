@@ -11,8 +11,8 @@ está em [docs/patterns.md](docs/patterns.md).
 | --- | --- | --- |
 | Aluno 1 |Joao Victor Carvalho de Freita | Builder + Composite |
 | Aluno 2 | Matheus Heinzen | Visitor + Template Method |
-| Aluno 3 | Bruna Carnelossi | Decorator + Prototype |
-| Aluno 4 | João Pedro de Souza | Abstract Factory + Iterator  |
+| Aluno 3 | Bruna Carnelossi | Decorator + Iterator |
+| Aluno 4 | João Pedro de Souza | Abstract Factory + Prototype |
 
 ## Por que o tema Documentos/Exportação
 
