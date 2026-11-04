@@ -2,6 +2,7 @@ package br.pucpr.boletim;
 
 import br.pucpr.docs.decorator.HtmlWatermarkDecorator;
 import br.pucpr.docs.decorator.PageNumberDecorator;
+import br.pucpr.docs.decorator.PdfWatermarkDecorator;
 import br.pucpr.docs.decorator.WatermarkDecorator;
 import br.pucpr.docs.export.DocumentExporter;
 import br.pucpr.docs.export.HtmlExporter;
@@ -57,10 +58,11 @@ public class ServidorWeb {
         // csv tambem nao passa pelos decorators, senao o Excel abre errado
         return texto(new CsvExporter().export(doc), "text/csv", "csv");
       case "pdf":
-        // binario: nao passa pelos decorators de texto
+        // pdf escrito na mao: a marca entra no arquivo pronto, sem mexer no texto
         PdfExporter pdf = new PdfExporter(t);
         pdf.highlightRows(destaque);
-        return new Arquivo(pdf.exportBytes(doc), "application/pdf", "pdf");
+        return new Arquivo(new PdfWatermarkDecorator(aviso).decorate(pdf.exportBytes(doc)),
+            "application/pdf", "pdf");
       case "docx":
         DocxExporter docx = new DocxExporter(t, aviso);
         docx.highlightRows(destaque);
