@@ -5,11 +5,15 @@ para vários formatos (HTML, Markdown, "PDF" em texto), com temas e efeitos de s
 Este README explica **as decisões** do projeto. A explicação didática de cada pattern e do código
 está em [docs/patterns.md](docs/patterns.md).
 
+## Vídeo
+
+Apresentação do projeto no YouTube: https://youtu.be/T68YIGGkVbg
+
 ## Integrantes
 
 | Aluno | Nome completo | Patterns |
 | --- | --- | --- |
-| Aluno 1 |Joao Victor Carvalho de Freita | Builder + Composite |
+| Aluno 1 | Joao Victor Carvalho de Freitas | Builder + Composite |
 | Aluno 2 | Matheus Heinzen | Visitor + Template Method |
 | Aluno 3 | Bruna Carnelossi | Decorator + Iterator |
 | Aluno 4 | João Pedro de Souza | Abstract Factory + Prototype |
@@ -128,7 +132,38 @@ Maven:
 </dependency>
 ```
 
-## Próximos passos (até a final em 12/11)
+## Exemplo de uso
 
-- Mais um tema e mais um decorator (ex: sumário).
-- Spotless e SpotBugs, como no repo do professor.
+Depois de adicionar a dependência, o uso básico é montar o documento com o Builder e escolher um exportador:
+
+```java
+import br.pucpr.docs.builder.DocumentBuilder;
+import br.pucpr.docs.decorator.PageNumberDecorator;
+import br.pucpr.docs.decorator.WatermarkDecorator;
+import br.pucpr.docs.export.DocumentExporter;
+import br.pucpr.docs.export.HtmlExporter;
+import br.pucpr.docs.export.PdfTextExporter;
+import br.pucpr.docs.model.Document;
+import br.pucpr.docs.theme.DarkThemeFactory;
+
+Document doc = DocumentBuilder.create("Relatório de Notas")
+    .author("Grupo Design Patterns")
+    .section("Notas")
+    .table("Aluno", "Nota")
+    .row("Ana", "9.5")
+    .row("Bruno", "8.0")
+    .endSection()
+    .build();
+
+// HTML com o tema escuro
+String html = new HtmlExporter(new DarkThemeFactory()).export(doc);
+
+// PDF em texto com marca d'água e numeração de página
+DocumentExporter pdf =
+    new PageNumberDecorator(new WatermarkDecorator(new PdfTextExporter(), "RASCUNHO"), 5);
+String texto = pdf.export(doc);
+```
+
+O exemplo completo, usando os 8 patterns, está em
+[example/src/main/java/br/pucpr/example/Main.java](example/src/main/java/br/pucpr/example/Main.java)
+e roda com `./gradlew :example:run`.
