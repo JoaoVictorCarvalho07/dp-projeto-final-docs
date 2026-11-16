@@ -3,7 +3,9 @@ package br.pucpr.docs;
 import static org.junit.jupiter.api.Assertions.*;
 
 import br.pucpr.docs.builder.DocumentBuilder;
+import br.pucpr.docs.decorator.HtmlWatermarkDecorator;
 import br.pucpr.docs.decorator.PageNumberDecorator;
+import br.pucpr.docs.decorator.PdfWatermarkDecorator;
 import br.pucpr.docs.decorator.WatermarkDecorator;
 import br.pucpr.docs.export.AbstractExporter;
 import br.pucpr.docs.export.HtmlExporter;
@@ -107,6 +109,26 @@ class PatternsTest {
   }
 
   @Test
+  void marcaDaguaVisualNoHtml() {
+    Document d = Fixtures.sample();
+    String original = new HtmlExporter().export(d);
+    String html = new HtmlWatermarkDecorator(new HtmlExporter(), "RASCUNHO <x>").export(d);
+    assertTrue(html.startsWith("<!DOCTYPE"));
+    assertTrue(html.startsWith(original.substring(0, original.indexOf("</body>"))));
+    int pos = html.indexOf("<div class=\"marca-dagua\">");
+    assertTrue(pos >= 0);
+    assertEquals(pos, html.lastIndexOf("<div class=\"marca-dagua\">"));
+    assertTrue(pos < html.indexOf("</body>"));
+    assertTrue(html.contains("RASCUNHO &lt;x&gt;"));
+
+    String solto = new HtmlWatermarkDecorator(doc -> "<p>oi</p>", "X").export(d);
+    assertTrue(solto.startsWith("<p>oi</p>"));
+    int noFim = solto.indexOf("<div class=\"marca-dagua\">");
+    assertEquals(noFim, solto.lastIndexOf("<div class=\"marca-dagua\">"));
+    assertTrue(noFim >= "<p>oi</p>".length());
+  }
+
+  @Test
   void pageNumberNaoDeixaLinhaOrfa() {
     br.pucpr.docs.export.DocumentExporter fake = d -> "a\nb\nc\n";
     String out = new PageNumberDecorator(fake, 2).export(Fixtures.sample());
@@ -126,6 +148,44 @@ class PatternsTest {
     Section introB = (Section) b.getRoot().getChildren().get(0);
     assertEquals("Olá", ((Paragraph) introB.getChildren().get(0)).getText());
     assertThrows(IllegalArgumentException.class, () -> reg.create("nao-existe"));
+  }
+
+  @Test
+  void marcaDaguaNoPdfEmTodasAsPaginas() {
+    var b = DocumentBuilder.create("Relatorio").section("Intro");
+    for (int i = 0; i < 40; i++) {
+      b.paragraph("Linha " + i + " de texto para encher a pagina.");
+    }
+    var doc = b.endSection().build();
+    byte[] cru = new PdfExporter().exportBytes(doc);
+    byte[] pdf = new PdfWatermarkDecorator("RASCUNHO").decorate(cru);
+    String txt = new String(pdf, java.nio.charset.StandardCharsets.ISO_8859_1);
+    assertTrue(txt.startsWith("%PDF-1.4"));
+    assertTrue(txt.trim().endsWith("%%EOF"));
+    int xref = txt.indexOf("\nxref\n") + 1;
+    int start = Integer.parseInt(txt.split("startxref\n")[1].split("\n")[0]);
+    assertEquals(xref, start);
+    int paginas = 0;
+    int p = 0;
+    while (true) {
+      int a = txt.indexOf("<< /Length ", p);
+      if (a < 0) {
+        break;
+      }
+      int ns = a + "<< /Length ".length();
+      int ne = txt.indexOf(" >>", ns);
+      int declared = Integer.parseInt(txt.substring(ns, ne).trim());
+      int cs = txt.indexOf("\nstream\n", ne) + "\nstream\n".length();
+      int ce = txt.indexOf("\nendstream", cs);
+      String stream = txt.substring(cs, ce);
+      assertEquals(declared, stream.length());
+      assertEquals(1, stream.split("\\(RASCUNHO\\) Tj", -1).length - 1);
+      paginas++;
+      p = ce;
+    }
+    assertTrue(paginas > 1);
+    assertEquals(new String(cru, java.nio.charset.StandardCharsets.ISO_8859_1).split("/Type /Page ", -1).length,
+        txt.split("/Type /Page ", -1).length);
   }
 
   @Test
