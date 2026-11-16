@@ -111,7 +111,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.JoaoVictorCarvalho07:dp-projeto-final-docs:v1.0.0'
+    implementation 'com.github.JoaoVictorCarvalho07:dp-projeto-final-docs:v1.1.0'
 }
 ```
 
@@ -128,7 +128,7 @@ Maven:
 <dependency>
     <groupId>com.github.JoaoVictorCarvalho07</groupId>
     <artifactId>dp-projeto-final-docs</artifactId>
-    <version>v1.0.0</version>
+    <version>v1.1.0</version>
 </dependency>
 ```
 
